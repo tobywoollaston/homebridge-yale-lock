@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "HomebridgeYaleLock",
   "pluginType": "platform",
   "singular": true,
   "schema": {
@@ -10,6 +10,16 @@
         "type": "string",
         "required": true,
         "default": "Example Dynamic Platform"
+      },
+      "username": {
+        "title": "Name",
+        "type": "string",
+        "required": true
+      },
+      "password": {
+        "title": "Password",
+        "type": "string",
+        "required": true
       }
     }
   }
