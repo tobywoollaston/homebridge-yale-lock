@@ -20,7 +20,7 @@ export class LockAccessory {
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Yale')
       .setCharacteristic(this.platform.Characteristic.Model, 'ConexisL1')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, accessory.UUID);
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, accessory.context.device.device_id);
 
     this.service = this.accessory.getService(this.platform.Service.LockMechanism) || this.accessory.addService(this.platform.Service.LockMechanism);
 
@@ -41,7 +41,7 @@ export class LockAccessory {
     this.log.debug('Triggered GET LockCurrentState');
 
     // set this to a valid value for LockCurrentState
-    const status = await this.platform.yaleApi.getLockStatus(this.accessory.UUID);
+    const status = await this.platform.yaleApi.getLockStatus(this.accessory.context.device.device_id);
     this.log.info('lock current state: ' + status);
     switch(status) {
       case LockStatus.locked:
