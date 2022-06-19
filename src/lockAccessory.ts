@@ -1,4 +1,4 @@
-import { Service, PlatformAccessory, Logger } from 'homebridge';
+import { Service, PlatformAccessory, Logger, CharacteristicValue } from 'homebridge';
 
 import { ExampleHomebridgePlatform } from './platform';
 import { LockStatus, RequestLockValue } from './yaleApi';
@@ -6,9 +6,11 @@ import { LockStatus, RequestLockValue } from './yaleApi';
 export class LockAccessory {
   private service: Service;
 
-  private state = {
-    LOCKED: 1,
-    UNLOCKED: 2,
+  private state: {
+    locked: {
+      current: CharacteristicValue;
+      target: CharacteristicValue;
+    };
   };
 
   constructor(
@@ -16,6 +18,13 @@ export class LockAccessory {
     private readonly accessory: PlatformAccessory,
     private readonly log: Logger,
   ) {
+
+    this.state = {
+      locked: {
+        current: this.platform.Characteristic.LockTargetState.UNSECURED,
+        target: this.platform.Characteristic.LockTargetState.UNSECURED,
+      },
+    };
 
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Yale')
@@ -33,8 +42,6 @@ export class LockAccessory {
       .onSet(this.handleLockTargetStateSet.bind(this));
 
   }
-
-  private currentState = 1;
 
   /**
    * Handle requests to get the current value of the "Lock Current State" characteristic
@@ -54,7 +61,9 @@ export class LockAccessory {
         state = this.platform.Characteristic.LockCurrentState.UNSECURED;
         break;
     }
-    this.currentState = state;
+
+    this.state.locked.current = state;
+
     return state;
   }
 
@@ -66,25 +75,15 @@ export class LockAccessory {
     this.log.debug('Triggered GET LockTargetState');
 
     // set this to a valid value for LockTargetState
-    if (this.changing) {
-      switch(this.currentState) {
-        case this.platform.Characteristic.LockCurrentState.SECURED:
-          return this.platform.Characteristic.LockTargetState.UNSECURED;
-        default:
-          return this.platform.Characteristic.LockTargetState.SECURED;
-      }
-    } else {
-      return this.currentState;
-    }
+    return this.state.locked.target;
   }
-
-  private changing = false;
 
   /**
    * Handle requests to set the "Lock Target State" characteristic
    */
   async handleLockTargetStateSet(value) {
     this.log.info('Triggered SET LockTargetState:' + value);
+    this.state.locked.target = value;
 
     let requestValue;
     switch(value) {
@@ -96,5 +95,6 @@ export class LockAccessory {
         break;
     }
     await this.platform.yaleApi.updateLock(this.accessory.context.device, requestValue);
+    this.state.locked.current = value;
   }
 }
