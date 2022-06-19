@@ -34,7 +34,7 @@ export class YaleAPI {
 
   private async processAccessToken(response) {
     const data = await response.json() as IOToken;
-    this._accessToken = data.access_token as string;
+    this._accessToken = data.access_token;
     const expiration = new Date();
     expiration.setSeconds(expiration.getSeconds() + data.expires_in);
     this._expiration = expiration;
@@ -43,6 +43,7 @@ export class YaleAPI {
   }
 
   public async getLocks(): Promise<IDevice[]> {
+    this.log.info(this._accessToken);
     const response = await fetch(this.url + '/api/panel/device_status/', {
       headers: {
         Authorization: `Bearer ${this._accessToken}`,
