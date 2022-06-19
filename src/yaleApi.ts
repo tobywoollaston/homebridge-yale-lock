@@ -5,18 +5,14 @@ export class YaleAPI {
 
   private readonly authorizationToken = 'VnVWWDZYVjlXSUNzVHJhcUVpdVNCUHBwZ3ZPakxUeXNsRU1LUHBjdTpkd3RPbE15WEtENUJ5ZW1GWHV0am55eGhrc0U3V0ZFY2p0dFcyOXRaSWNuWHlSWHFsWVBEZ1BSZE1xczF4R3VwVTlxa1o4UE5ubGlQanY5Z2hBZFFtMHpsM0h4V3dlS0ZBcGZzakpMcW1GMm1HR1lXRlpad01MRkw3MGR0bmNndQ==';
   private readonly url = 'https://mob.yalehomesystem.co.uk/yapi';
-  private _accessToken!: string;
-  private _expiration!: Date;
 
   constructor(
         private readonly log: Logger,
         private readonly username: string,
         private readonly password: string,
-  ) {
-    this.getAccessToken();
-  }
+  ) {}
 
-  public async getAccessToken() {
+  public async getAccessToken() : Promise<string> {
     const response = await fetch(this.url + '/o/token/', {
       method: 'POST',
       body: `grant_type=password&username=${encodeURIComponent(this.username)}&password=${encodeURIComponent(this.password)}`,
@@ -26,36 +22,36 @@ export class YaleAPI {
       },
     });
     if (response.status === 200) {
-      this.processAccessToken(response);
+      return this.processAccessToken(response);
     } else {
       this.log.error('Unable to get authorisation token');
+      throw new Error('Unauthorised');
     }
   }
 
-  private async processAccessToken(response) {
+  private async processAccessToken(response) : Promise<string> {
     const data = await response.json() as IOToken;
-    this._accessToken = data.access_token;
-    const expiration = new Date();
-    expiration.setSeconds(expiration.getSeconds() + data.expires_in);
-    this._expiration = expiration;
-    this.log.info('Got access token and expiration');
-    this.log.info(JSON.stringify(data));
+    this.log.info('Got access token');
+    return data.access_token;
   }
 
   public async getLocks(): Promise<IDevice[]> {
-    this.log.info('token: ' + this._accessToken);
+    const accessToken = await this.getAccessToken();
+    this.log.info('token: ' + accessToken);
+
     const response = await fetch(this.url + '/api/panel/device_status/', {
       headers: {
-        Authorization: `Bearer ${this._accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
+
     this.log.info(JSON.stringify(response));
-    return this.findLocks(response);
-    // if (response.size === 200) {
-    // } else {
-    //   await this.getAccessToken();
-    //   return await this.getLocks();
-    // }
+
+    if (response.size === 200) {
+      return this.findLocks(response);
+    } else {
+      throw new Error('Cannot get locks');
+    }
   }
 
   private async findLocks(response): Promise<IDevice[]> {
