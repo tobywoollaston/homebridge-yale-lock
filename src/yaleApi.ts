@@ -62,6 +62,28 @@ export class YaleAPI {
     const lock = locks.filter(lock => lock.device_id === id)[0];
     return lock.status1;
   }
+
+  public async updateLock(device: IDevice, lockValue: RequestLockValue) {
+    const accessToken = await this.getAccessToken();
+
+    const response = await fetch(this.url + '/api/panel/device_control/', {
+      method: 'POST',
+      body: `area=${device.area}
+                &zone=${device.no}
+                &device_sid=${device.device_id}
+                &request_value=${lockValue}`,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded ; charset=utf-8',
+      },
+    });
+
+    if (response.status === 200) {
+      this.log.info('update success');
+    } else {
+      this.log.error('something went wrong');
+    }
+  }
 }
 
 interface IOToken {
@@ -88,4 +110,9 @@ interface IDevice {
 export enum LockStatus {
     locked = 'device_status.lock',
     unlocked = 'device_status.unlock',
+}
+
+export enum RequestLockValue {
+    locked = 1,
+    unlocked = 2,
 }

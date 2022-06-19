@@ -1,7 +1,7 @@
 import { Service, PlatformAccessory, Logger } from 'homebridge';
 
 import { ExampleHomebridgePlatform } from './platform';
-import { LockStatus } from './yaleApi';
+import { LockStatus, RequestLockValue } from './yaleApi';
 
 export class LockAccessory {
   private service: Service;
@@ -83,12 +83,18 @@ export class LockAccessory {
   /**
    * Handle requests to set the "Lock Target State" characteristic
    */
-  handleLockTargetStateSet(value) {
+  async handleLockTargetStateSet(value) {
     this.log.info('Triggered SET LockTargetState:' + value);
-    // this.changing = true;
 
-    // setTimeout(() => {
-    //   this.changing = false;
-    // }, 5000);
+    let requestValue;
+    switch(value) {
+      case this.platform.Characteristic.LockTargetState.SECURED:
+        requestValue = RequestLockValue.locked;
+        break;
+      case this.platform.Characteristic.LockTargetState.UNSECURED:
+        requestValue = RequestLockValue.unlocked;
+        break;
+    }
+    await this.platform.yaleApi.updateLock(this.accessory.context.device, requestValue);
   }
 }
