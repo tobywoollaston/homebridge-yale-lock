@@ -68,7 +68,7 @@ export class YaleAPI {
 
     const options = {
       method: 'POST',
-      body: `area=${device.area}&zone=${device.no}&device_sid=${encodeURIComponent(device.device_id)}&request_value=${lockValue}`,
+      body: `area=${device.area}&zone=${device.no}&device_sid=${encodeURIComponent(device.device_id)}&device_type=${device.type}&request_value=${lockValue}`,
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/x-www-form-urlencoded ; charset=utf-8',
