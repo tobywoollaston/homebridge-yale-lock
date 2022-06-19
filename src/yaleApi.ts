@@ -43,7 +43,7 @@ export class YaleAPI {
   }
 
   public async getLocks(): Promise<IDevice[]> {
-    this.log.info(this._accessToken);
+    this.log.info('token: ' + this._accessToken);
     const response = await fetch(this.url + '/api/panel/device_status/', {
       headers: {
         Authorization: `Bearer ${this._accessToken}`,
