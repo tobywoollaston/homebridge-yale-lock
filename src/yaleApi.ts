@@ -40,6 +40,7 @@ export class YaleAPI {
     this.log.info('token: ' + accessToken);
 
     const options = {
+      method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
