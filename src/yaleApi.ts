@@ -1,4 +1,4 @@
-import { Characteristic, Logger } from 'homebridge';
+import { Logger } from 'homebridge';
 import fetch from 'node-fetch';
 
 export class YaleAPI {
@@ -66,7 +66,7 @@ export class YaleAPI {
   public async updateLock(device: IDevice, lockValue: RequestLockValue) {
     const accessToken = await this.getAccessToken();
 
-    const response = await fetch(this.url + '/api/panel/device_control/', {
+    const options = {
       method: 'POST',
       body: `area=${device.area}
                 &zone=${device.no}
@@ -76,7 +76,13 @@ export class YaleAPI {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/x-www-form-urlencoded ; charset=utf-8',
       },
-    });
+    };
+    this.log.info(JSON.stringify(options));
+
+    const response = await fetch(this.url + '/api/panel/device_control/', options);
+
+    const dataBack = await response.json();
+    this.log.info(JSON.stringify(dataBack));
 
     if (response.status === 200) {
       this.log.info('update success');
