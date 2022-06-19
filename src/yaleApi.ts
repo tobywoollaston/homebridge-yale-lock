@@ -39,6 +39,7 @@ export class YaleAPI {
     expiration.setSeconds(expiration.getSeconds() + data.expires_in);
     this._expiration = expiration;
     this.log.info('Got access token and expiration');
+    this.log.info(JSON.stringify(data));
   }
 
   public async getLocks(): Promise<IDevice[]> {
@@ -47,6 +48,7 @@ export class YaleAPI {
         Authorization: `Bearer ${this._accessToken}`,
       },
     });
+    this.log.info(JSON.stringify(response));
     if (response.size === 200) {
       return this.findLocks(response);
     } else {
