@@ -22,7 +22,7 @@ export class LockAccessory {
     this.state = {
       locked: {
         current: this.platform.Characteristic.LockTargetState.UNSECURED,
-        target: accessory.context.device.status1 === LockStatus.locked ? 0 : 1,
+        target: accessory.context.device.status1 === LockStatus.locked ? 1 : 0,
       },
     };
 
@@ -46,13 +46,13 @@ export class LockAccessory {
   /**
    * Handle requests to get the current value of the "Lock Current State" characteristic
    */
-  async handleLockCurrentStateGet() {
+  async handleLockCurrentStateGet(): Promise<CharacteristicValue> {
     this.log.debug('Triggered GET LockCurrentState');
 
     // set this to a valid value for LockCurrentState
     const status = await this.platform.yaleApi.getLockStatus(this.accessory.context.device.device_id);
     this.log.info('lock current state: ' + status);
-    let state;
+    let state: CharacteristicValue;
     switch(status) {
       case LockStatus.locked:
         state = this.platform.Characteristic.LockCurrentState.SECURED;
@@ -71,7 +71,7 @@ export class LockAccessory {
   /**
    * Handle requests to get the current value of the "Lock Target State" characteristic
    */
-  handleLockTargetStateGet() {
+  handleLockTargetStateGet(): CharacteristicValue {
     this.log.debug('Triggered GET LockTargetState');
 
     // set this to a valid value for LockTargetState
@@ -81,20 +81,19 @@ export class LockAccessory {
   /**
    * Handle requests to set the "Lock Target State" characteristic
    */
-  async handleLockTargetStateSet(value) {
+  async handleLockTargetStateSet(value: CharacteristicValue) {
     this.log.info('Triggered SET LockTargetState:' + value);
     this.state.locked.target = value;
 
-    let requestValue;
+    let requestValue = RequestLockValue.unlocked;
     switch(value) {
       case this.platform.Characteristic.LockTargetState.SECURED:
         requestValue = RequestLockValue.locked;
         break;
-      case this.platform.Characteristic.LockTargetState.UNSECURED:
-        requestValue = RequestLockValue.unlocked;
-        break;
     }
+
     await this.platform.yaleApi.updateLock(this.accessory.context.device, requestValue);
+
     this.state.locked.current = value;
   }
 }
