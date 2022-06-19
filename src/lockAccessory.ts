@@ -1,6 +1,7 @@
-import { Service, PlatformAccessory, CharacteristicValue, Logger } from 'homebridge';
+import { Service, PlatformAccessory, Logger } from 'homebridge';
 
 import { ExampleHomebridgePlatform } from './platform';
+import { LockStatus } from './yaleApi';
 
 export class LockAccessory {
   private service: Service;
@@ -36,11 +37,19 @@ export class LockAccessory {
   /**
    * Handle requests to get the current value of the "Lock Current State" characteristic
    */
-  handleLockCurrentStateGet() {
+  async handleLockCurrentStateGet() {
     this.log.debug('Triggered GET LockCurrentState');
 
     // set this to a valid value for LockCurrentState
+    const status = await this.platform.yaleApi.getLockStatus(this.accessory.UUID);
+    switch(status) {
+      case LockStatus.locked:
+        return this.platform.Characteristic.LockCurrentState.SECURED;
+      case LockStatus.unlocked:
+        this.platform.Characteristic.LockCurrentState.UNSECURED;
+    }
     const currentValue = this.platform.Characteristic.LockCurrentState.UNSECURED;
+    this.platform.yaleApi.getLockStatus(this.accessory.UUID);
 
     return currentValue;
   }

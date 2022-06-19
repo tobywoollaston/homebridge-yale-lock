@@ -1,4 +1,4 @@
-import { Logger } from 'homebridge';
+import { Characteristic, Logger } from 'homebridge';
 import fetch from 'node-fetch';
 
 export class YaleAPI {
@@ -56,6 +56,12 @@ export class YaleAPI {
     const data = await response.json() as IDevices;
     return data.data.filter(device => device.type === 'device_type.door_lock');
   }
+
+  public async getLockStatus(id: string): Promise<LockStatus> {
+    const locks = await this.getLocks();
+    const lock = locks.filter(lock => lock.device_id === id)[0];
+    return lock.status1;
+  }
 }
 
 interface IOToken {
@@ -75,6 +81,11 @@ interface IDevice {
     address: string;
     type: string;
     name: string;
-    status1: string;
+    status1: LockStatus;
     device_id: string;
+}
+
+export enum LockStatus {
+    locked = 'device_status.lock',
+    unlocked = 'device_status.unlock',
 }

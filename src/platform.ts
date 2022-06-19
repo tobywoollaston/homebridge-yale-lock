@@ -15,7 +15,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
 
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
-  private yaleApi: YaleAPI;
+  public yaleApi: YaleAPI;
 
   constructor(
     public readonly log: Logger,
