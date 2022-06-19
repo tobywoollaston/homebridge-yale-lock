@@ -49,16 +49,17 @@ export class YaleAPI {
       },
     });
     this.log.info(JSON.stringify(response));
-    if (response.size === 200) {
-      return this.findLocks(response);
-    } else {
-      await this.getAccessToken();
-      return await this.getLocks();
-    }
+    return this.findLocks(response);
+    // if (response.size === 200) {
+    // } else {
+    //   await this.getAccessToken();
+    //   return await this.getLocks();
+    // }
   }
 
   private async findLocks(response): Promise<IDevice[]> {
     const data = await response.json() as IDevices;
+    this.log.info(JSON.stringify(data));
     return data.data.filter(device => device.type === 'device_type.door_lock');
   }
 }
