@@ -42,6 +42,7 @@ export class LockAccessory {
 
     // set this to a valid value for LockCurrentState
     const status = await this.platform.yaleApi.getLockStatus(this.accessory.UUID);
+    this.log.info('lock current state: ' + status);
     switch(status) {
       case LockStatus.locked:
         return this.platform.Characteristic.LockCurrentState.SECURED;
