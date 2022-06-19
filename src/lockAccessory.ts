@@ -22,7 +22,7 @@ export class LockAccessory {
     this.state = {
       locked: {
         current: this.platform.Characteristic.LockTargetState.UNSECURED,
-        target: this.platform.Characteristic.LockTargetState.UNSECURED,
+        target: accessory.context.device.status1 === LockStatus.locked ? 0 : 1,
       },
     };
 
