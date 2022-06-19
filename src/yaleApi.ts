@@ -37,18 +37,13 @@ export class YaleAPI {
 
   public async getLocks(): Promise<IDevice[]> {
     const accessToken = await this.getAccessToken();
-    this.log.info('token: ' + accessToken);
 
-    const options = {
+    const response = await fetch(this.url + '/api/panel/device_status/', {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    };
-    this.log.info('options:' + JSON.stringify(options));
-    const response = await fetch(this.url + '/api/panel/device_status/', options);
-
-    this.log.info(JSON.stringify(response));
+    });
 
     if (response.status === 200) {
       return this.findLocks(response);
@@ -59,7 +54,6 @@ export class YaleAPI {
 
   private async findLocks(response): Promise<IDevice[]> {
     const data = await response.json() as IDevices;
-    this.log.info(JSON.stringify(data));
     return data.data.filter(device => device.type === 'device_type.door_lock');
   }
 }
