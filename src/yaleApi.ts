@@ -39,11 +39,13 @@ export class YaleAPI {
     const accessToken = await this.getAccessToken();
     this.log.info('token: ' + accessToken);
 
-    const response = await fetch(this.url + '/api/panel/device_status/', {
+    const options = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    });
+    };
+    this.log.info('options:' + JSON.stringify(options));
+    const response = await fetch(this.url + '/api/panel/device_status/', options);
 
     this.log.info(JSON.stringify(response));
 
