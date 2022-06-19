@@ -41,24 +41,43 @@ export class YaleAPI {
     this.log.info('Got access token and expiration');
   }
 
-  public async getLocks() {
+  public async getLocks(): Promise<IDevice[]> {
     const response = await fetch(this.url + '/api/panel/device_status/', {
       headers: {
         Authorization: `Bearer ${this._accessToken}`,
       },
     });
     if (response.size === 200) {
-      const data = await response.json();
-      this.log.info('got devices');
-      this.log.info(JSON.stringify(data, null, 2));
+      return this.findLocks(response);
     } else {
       await this.getAccessToken();
       return await this.getLocks();
     }
+  }
+
+  private async findLocks(response): Promise<IDevice[]> {
+    const data = await response.json() as IDevices;
+    return data.data.filter(device => device.type === 'device_type.door_lock');
   }
 }
 
 interface IOToken {
     access_token: string;
     expires_in: number;
+}
+
+interface IDevices {
+    result: boolean;
+    message: string;
+    data: [IDevice];
+}
+
+interface IDevice {
+    area: string;
+    no: string;
+    address: string;
+    type: string;
+    name: string;
+    status1: string;
+    device_id: string;
 }
