@@ -34,6 +34,8 @@ export class LockAccessory {
 
   }
 
+  private currentState = 1;
+
   /**
    * Handle requests to get the current value of the "Lock Current State" characteristic
    */
@@ -43,16 +45,17 @@ export class LockAccessory {
     // set this to a valid value for LockCurrentState
     const status = await this.platform.yaleApi.getLockStatus(this.accessory.context.device.device_id);
     this.log.info('lock current state: ' + status);
+    let state;
     switch(status) {
       case LockStatus.locked:
-        return this.platform.Characteristic.LockCurrentState.SECURED;
+        state = this.platform.Characteristic.LockCurrentState.SECURED;
+        break;
       case LockStatus.unlocked:
-        this.platform.Characteristic.LockCurrentState.UNSECURED;
+        state = this.platform.Characteristic.LockCurrentState.UNSECURED;
+        break;
     }
-    const currentValue = this.platform.Characteristic.LockCurrentState.UNSECURED;
-    this.platform.yaleApi.getLockStatus(this.accessory.UUID);
-
-    return currentValue;
+    this.currentState = state;
+    return state;
   }
 
 
@@ -63,15 +66,25 @@ export class LockAccessory {
     this.log.debug('Triggered GET LockTargetState');
 
     // set this to a valid value for LockTargetState
-    const currentValue = this.platform.Characteristic.LockTargetState.UNSECURED;
-
-    return currentValue;
+    if (this.changing) {
+      switch(this.currentState) {
+        case this.platform.Characteristic.LockCurrentState.SECURED:
+          return this.platform.Characteristic.LockTargetState.UNSECURED;
+        default:
+          return this.platform.Characteristic.LockTargetState.SECURED;
+      }
+    } else {
+      return this.currentState;
+    }
   }
+
+  private changing = false;
 
   /**
    * Handle requests to set the "Lock Target State" characteristic
    */
   handleLockTargetStateSet(value) {
     this.log.info('Triggered SET LockTargetState:' + value);
+    this.changing = true;
   }
 }
