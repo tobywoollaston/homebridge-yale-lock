@@ -50,7 +50,7 @@ export class YaleAPI {
 
     this.log.info(JSON.stringify(response));
 
-    if (response.size === 200) {
+    if (response.status === 200) {
       return this.findLocks(response);
     } else {
       throw new Error('Cannot get locks');
