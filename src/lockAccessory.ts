@@ -85,10 +85,10 @@ export class LockAccessory {
    */
   handleLockTargetStateSet(value) {
     this.log.info('Triggered SET LockTargetState:' + value);
-    this.changing = true;
+    // this.changing = true;
 
-    setTimeout(() => {
-      this.changing = false;
-    }, 5000);
+    // setTimeout(() => {
+    //   this.changing = false;
+    // }, 5000);
   }
 }
