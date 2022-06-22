@@ -44,6 +44,15 @@ export class LockAccessory {
 
   }
 
+  async load() {
+    this.state = {
+      locked: {
+        current: this.platform.Characteristic.LockTargetState.UNSECURED,
+        target: await this.handleLockCurrentStateGet(),
+      },
+    };
+  }
+
   /**
    * Handle requests to get the current value of the "Lock Current State" characteristic
    */
