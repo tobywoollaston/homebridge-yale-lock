@@ -19,6 +19,7 @@ export class LockAccessory {
     private readonly log: Logger,
   ) {
 
+    this.log.info(accessory.context.device);
     this.state = {
       locked: {
         current: this.platform.Characteristic.LockTargetState.UNSECURED,
