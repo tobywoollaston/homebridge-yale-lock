@@ -26,6 +26,7 @@ export class LockAccessory {
         target: accessory.context.device.status1 === LockStatus.locked ? 1 : 0,
       },
     };
+    this.load();
 
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Yale')
