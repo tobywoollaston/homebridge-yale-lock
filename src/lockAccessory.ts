@@ -19,12 +19,14 @@ export class LockAccessory {
     private readonly log: Logger,
   ) {
 
+    this.log.info(accessory.context.device);
     this.state = {
       locked: {
         current: this.platform.Characteristic.LockTargetState.UNSECURED,
         target: accessory.context.device.status1 === LockStatus.locked ? 1 : 0,
       },
     };
+    this.load();
 
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Yale')
@@ -41,6 +43,15 @@ export class LockAccessory {
       .onGet(this.handleLockTargetStateGet.bind(this))
       .onSet(this.handleLockTargetStateSet.bind(this));
 
+  }
+
+  async load() {
+    this.state = {
+      locked: {
+        current: this.platform.Characteristic.LockTargetState.UNSECURED,
+        target: await this.handleLockCurrentStateGet(),
+      },
+    };
   }
 
   /**
