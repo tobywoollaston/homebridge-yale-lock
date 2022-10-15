@@ -54,7 +54,10 @@ export class YaleAPI {
 
   private async findLocks(response): Promise<IDevice[]> {
     const data = await response.json() as IDevices;
-    return data.data.filter(device => device.type === 'device_type.door_lock');
+    if (data.data) {
+      return data.data.filter(device => device.type === 'device_type.door_lock');
+    }
+    return [];
   }
 
   public async getLockStatus(id: string): Promise<LockStatus> {
